@@ -733,7 +733,8 @@ GLTexture *BlurEffect::ensureNoiseTexture()
             uint8_t *noiseImageLine = (uint8_t *)noiseImage.scanLine(y);
 
             for (int x = 0; x < noiseImage.width(); x++) {
-                noiseImageLine[x] = std::rand() % m_noiseStrength;
+                // we are increasing the noise but capping it
+                noiseImageLine[x] = (uint8_t)((static_cast<uint64_t>(std::rand()) * 4) % 151);
             }
         }
 
