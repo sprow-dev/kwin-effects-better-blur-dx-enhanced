@@ -15,13 +15,16 @@
             },
             {
                 "Name": "Xarblu"
+            },
+            {
+                "Name": "Sprow-dev"
             }
         ],
         "Category": "Appearance",
-        "Description": "Fork of the KWin Blur effect for KDE Plasma 6 with force blur and more",
+        "Description": "Fork of the Better Blur DX effect to add some useless noise",
         "EnabledByDefault": false,
         "License": "GPL",
-        "Name": "Better Blur DX"
+        "Name": "Better Blur DX Enhanced"
     },
     "X-KDE-ConfigModule": "kwin_better_blur_dx_config"
 }
