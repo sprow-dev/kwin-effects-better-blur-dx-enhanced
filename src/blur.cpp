@@ -743,8 +743,11 @@ GLTexture *BlurEffect::ensureNoiseTexture()
                 int refraction = (layer1 * 1.96f) - (layer2 / 5.0f);
                 // blend them with subtle refraction
                 int blend = static_cast<int>(refraction * (m_noiseStrength / 10.0f));
+
+                // finally add that extra "premium" feel to microsoft's acrylic by adding a gray tone
+                int overlay = static_cast<int>(blend * (128 * 0.3f))
                 
-                noiseImageLine[x] = (uint8_t)std::clamp(blend, 0, 255);
+                noiseImageLine[x] = (uint8_t)std::clamp(overlay, 0, 255);
             }
         }
 
