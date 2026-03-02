@@ -733,8 +733,18 @@ GLTexture *BlurEffect::ensureNoiseTexture()
             uint8_t *noiseImageLine = (uint8_t *)noiseImage.scanLine(y);
 
             for (int x = 0; x < noiseImage.width(); x++) {
-                // we are increasing the noise but capping it
-                noiseImageLine[x] = (uint8_t)((static_cast<uint64_t>(std::rand()) * 4) % 151);
+                // layer 1. intense (0-130, 10x banding)
+                int layer1 = (uint8_t)((static_cast<uint64_t>(std::rand()) * 10) % 131);
+
+                // layer 2. soft (0-40, 3x banding)
+                int layer2 = (uint8_t)((static_cast<uint64_t>(std::rand()) * 3) % 41);
+
+                // bend the lighting a bunch
+                int refraction = (layer1 * 1.96f) - (layer2 / 5.0f);
+                // blend them with subtle refraction
+                int blend = static_cast<int>(refraction * (m_noiseStrength / 10.0f));
+                
+                noiseImageLine[x] = (uint8_t)std::clamp(blend, 0, 255);
             }
         }
 
