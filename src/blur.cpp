@@ -735,7 +735,7 @@ GLTexture *BlurEffect::ensureNoiseTexture()
             for (int x = 0; x < noiseImage.width(); x++) {
                 int rnd = std::rand();
                 
-                uint8_t pixelOld = noiseImageLine[x];
+                uint8_t pixelOld = 128;
                 
                 // layer 1. intense (0-130, 10x banding)
                 int layer1 = (uint8_t)((static_cast<uint64_t>(rnd >> 10) * 10) % 131);
