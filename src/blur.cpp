@@ -1125,6 +1125,12 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         m_onscreenPass.shader->setUniform(m_onscreenPass.colorMatrixLocation, colorMatrix);
         m_onscreenPass.shader->setUniform(m_onscreenPass.halfpixelLocation, halfpixel);
         m_onscreenPass.shader->setUniform(m_onscreenPass.offsetLocation, float(m_offset));
+        if (GLTexture *noiseTex = ensureNoiseTexture()) {
+            glActiveTexture(GL_TEXTURE1);
+            noiseTex->bind();
+            glActiveTexture(GL_TEXTURE0); 
+            m_refractionPass.shaderRectangular()->setUniform("noiseTexture", 1);
+        }
         } // indent intentional for KWin diff
 
         BBDX::setTextureSwizzle(read->colorAttachment());
@@ -1147,35 +1153,35 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
     }
 #endif
 
-    if (m_noiseStrength > 0) {
+    //if (m_noiseStrength > 0) {
         // Apply an additive noise onto the blurred image. The noise is useful to mask banding
         // artifacts, which often happens due to the smooth color transitions in the blurred image.
 
-        glEnable(GL_BLEND);
-        if (opacity < 1.0) {
-            glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
-        } else {
-            glBlendFunc(GL_ONE, GL_ONE);
-        }
+    //    glEnable(GL_BLEND);
+    //    if (opacity < 1.0) {
+    //        glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE);
+    //    } else {
+    //        glBlendFunc(GL_ONE, GL_ONE);
+    //    }
 
-        if (GLTexture *noiseTexture = ensureNoiseTexture()) {
-            ShaderManager::instance()->pushShader(m_noisePass.shader.get());
+    //    if (GLTexture *noiseTexture = ensureNoiseTexture()) {
+    //        ShaderManager::instance()->pushShader(m_noisePass.shader.get());
 
-            QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
-            projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
+    //        QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
+    //        projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
 
-            m_noisePass.shader->setUniform(m_noisePass.mvpMatrixLocation, projectionMatrix);
-            m_noisePass.shader->setUniform(m_noisePass.noiseTextureSizeLocation, QVector2D(noiseTexture->width(), noiseTexture->height()));
+    //        m_noisePass.shader->setUniform(m_noisePass.mvpMatrixLocation, projectionMatrix);
+    //        m_noisePass.shader->setUniform(m_noisePass.noiseTextureSizeLocation, QVector2D(noiseTexture->width(), noiseTexture->height()));
 
-            noiseTexture->bind();
+    //        noiseTexture->bind();
 
-            vbo->draw(GL_TRIANGLES, 6, vertexCount);
+    //        vbo->draw(GL_TRIANGLES, 6, vertexCount);
 
-            ShaderManager::instance()->popShader();
-        }
+    //        ShaderManager::instance()->popShader();
+    //    }
 
-        glDisable(GL_BLEND);
-    }
+    //    glDisable(GL_BLEND);
+    //}
 
     if (const BorderRadius cornerRadius = m_windowManager.getEffectiveBorderRadius(w); !cornerRadius.isNull()) {
         m_roundedCornersPass.apply(cornerRadius, viewport, scaledBackgroundRect, renderInfo, w, data, vbo, vertexCount);
