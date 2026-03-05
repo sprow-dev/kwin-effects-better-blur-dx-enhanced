@@ -1,4 +1,5 @@
 uniform sampler2D texUnit;
+uniform sampler2D noiseTexture; // this is our new noise map (layer 2)
 uniform mat4 colorMatrix;
 uniform float offset;
 uniform vec2 halfpixel;
@@ -89,6 +90,11 @@ void main(void)
     float distConcave = roundedRectangleDist(position, halfRefractionRectSize, cornerR);
     float distBulge = roundedRectangleDist(position, halfRefractionRectSize, refractionEdgeSizePixels);
 
+    // sample using reg uv
+    vec4 noiseSample = texture2D(noiseTexture, uv);
+    // normalize and scale to slider
+    vec2 noiseOffset = (noiseSample.rg - vec2(0.5)) * 0.02 * refractionStrength
+    
     // Different refraction behavior depending on mode
     if (refractionMode == 1) {
         // Concave: lens-like radial mapping with RGB fringing
@@ -99,7 +105,7 @@ void main(void)
         float edgeProximity = clamp(1.0 + distConcave / refractionEdgeSizePixels, 0.0, 1.0);
         float shaped = sin(pow(edgeProximity, refractionNormalPow) * 1.57079632679);
 
-        vec2 fromCenter = uv - vec2(0.5);
+        vec2 fromCenter = (uv + noiseOffset) - vec2(0.5); // add our new uv offset
         float scaleR = 1.0 - shaped * baseStrength * (1.0 + fringing);
         float scaleG = 1.0 - shaped * baseStrength;
         float scaleB = 1.0 - shaped * baseStrength * (1.0 - fringing);
@@ -138,9 +144,10 @@ void main(void)
         vec2 refractOffsetG = normal.xy * finalStrength;
         vec2 refractOffsetB = normal.xy * (finalStrength * (1.0 - fringingFactor)); // Blue bends least
 
-        vec2 coordR = applyTextureRepeatMode(uv - refractOffsetR);
-        vec2 coordG = applyTextureRepeatMode(uv - refractOffsetG);
-        vec2 coordB = applyTextureRepeatMode(uv - refractOffsetB);
+        // add our uv offset
+        vec2 coordR = applyTextureRepeatMode(uv - refractOffsetR + noiseOffset);
+        vec2 coordG = applyTextureRepeatMode(uv - refractOffsetG + noiseOffset);
+        vec2 coordB = applyTextureRepeatMode(uv - refractOffsetB + noiseOffset);
 
         for (int i = 0; i < 8; ++i) {
             vec2 off = offsets[i] * offset;
