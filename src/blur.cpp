@@ -735,8 +735,6 @@ GLTexture *BlurEffect::ensureNoiseTexture()
             for (int x = 0; x < noiseImage.width(); x++) {
                 int rnd = std::rand();
                 
-                uint8_t pixelOld = 128;
-                
                 // layer 1. intense (0-130, 10x banding)
                 int layer1 = (uint8_t)((static_cast<uint64_t>(rnd >> 10) * 10) % 131);
 
@@ -750,12 +748,8 @@ GLTexture *BlurEffect::ensureNoiseTexture()
                 int refraction = (layer1 * 1.96f) - (layer2 / 5.0f);
                 // blend them with subtle refraction
                 int blend = static_cast<int>(refraction * strength);
-
-                // finally add that extra "premium" feel to microsoft's acrylic by adding a gray tone
-                // FIX: change blend to pixelOld to prevent value blowout and cause near complete value ceilings.
-                int overlay = static_cast<int>(pixelOld + (blend * 0.08f));
                 
-                noiseImageLine[x] = (uint8_t)std::clamp(overlay, 0, 255);
+                noiseImageLine[x] = (uint8_t)std::clamp(blend, 0, 255);
             }
         }
 
