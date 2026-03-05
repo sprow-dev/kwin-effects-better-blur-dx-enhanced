@@ -728,24 +728,32 @@ GLTexture *BlurEffect::ensureNoiseTexture()
         std::srand((uint)QTime::currentTime().msec());
 
         QImage noiseImage(QSize(256, 256), QImage::Format_Grayscale8);
-
+        
         for (int y = 0; y < noiseImage.height(); y++) {
             uint8_t *noiseImageLine = (uint8_t *)noiseImage.scanLine(y);
 
             for (int x = 0; x < noiseImage.width(); x++) {
+                int rnd = std::rand()
+                
+                uint8_t pixelOld = noiseImageLine[x];
+                
                 // layer 1. intense (0-130, 10x banding)
-                int layer1 = (uint8_t)((static_cast<uint64_t>(std::rand()) * 10) % 131);
+                int layer1 = (uint8_t)((static_cast<uint64_t>(rnd >> 10) * 10) % 131);
 
                 // layer 2. soft (0-40, 3x banding)
-                int layer2 = (uint8_t)((static_cast<uint64_t>(std::rand()) * 3) % 41);
-
+                int layer2 = (uint8_t)((static_cast<uint64_t>(rnd >> 3) * 3) % 41);
+                
+                // pre-calculate strength
+                float strength = m_noiseStrength / 10.0f;
+                
                 // bend the lighting a bunch
                 int refraction = (layer1 * 1.96f) - (layer2 / 5.0f);
                 // blend them with subtle refraction
-                int blend = static_cast<int>(refraction * (m_noiseStrength / 10.0f));
+                int blend = static_cast<int>(refraction * strength);
 
                 // finally add that extra "premium" feel to microsoft's acrylic by adding a gray tone
-                int overlay = static_cast<int>(blend * (128 * 0.3f));
+                // FIX: change blend to pixelOld to prevent value blowout and cause near complete value ceilings.
+                int overlay = static_cast<int>(pixelOld + (blend * 0.3f));
                 
                 noiseImageLine[x] = (uint8_t)std::clamp(overlay, 0, 255);
             }
