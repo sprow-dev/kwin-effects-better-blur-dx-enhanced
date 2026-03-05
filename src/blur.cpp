@@ -1129,7 +1129,11 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
             glActiveTexture(GL_TEXTURE1);
             noiseTex->bind();
             glActiveTexture(GL_TEXTURE0); 
-            m_refractionPass.shaderRectangular()->setUniform("noiseTexture", 1);
+            
+            GLShader *currentShader = ShaderManager::instance()->getChainShader();
+            if (currentShader) {
+                currentShader->setUniform("noiseTexture", 1);
+            }
         }
         } // indent intentional for KWin diff
 
