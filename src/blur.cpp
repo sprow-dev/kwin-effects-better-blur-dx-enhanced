@@ -744,6 +744,9 @@ GLTexture *BlurEffect::ensureNoiseTexture()
                 // blend them with subtle refraction
                 int blend = static_cast<int>(refraction * (m_noiseStrength / 10.0f));
 
+                // fixing noise strength at max setting by finally brining it back towards transparent (0)
+                int finalBlend = blend * 0.3f;
+                
                 // we cast it to uint8_t because that allows it to overflow
                 // nicely without clamping, so if it gets 299 it goes to 43
                 noiseImageLine[x] = static_cast<uint8_t>(blend);
