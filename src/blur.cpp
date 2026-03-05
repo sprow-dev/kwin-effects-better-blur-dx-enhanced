@@ -733,7 +733,7 @@ GLTexture *BlurEffect::ensureNoiseTexture()
             uint8_t *noiseImageLine = (uint8_t *)noiseImage.scanLine(y);
 
             for (int x = 0; x < noiseImage.width(); x++) {
-                int rnd = std::rand()
+                int rnd = std::rand();
                 
                 uint8_t pixelOld = noiseImageLine[x];
                 
