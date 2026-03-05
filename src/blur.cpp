@@ -727,29 +727,18 @@ GLTexture *BlurEffect::ensureNoiseTexture()
         // Init randomness based on time
         std::srand((uint)QTime::currentTime().msec());
 
-        QImage noiseImage(QSize(256, 256), QImage::Format_Grayscale8);
+        // define image as rgba due to the way we refract
+        QImage noiseImage(QSize(256, 256), QImage::Format_RGBA8888); 
 
         for (int y = 0; y < noiseImage.height(); y++) {
             uint8_t *noiseImageLine = (uint8_t *)noiseImage.scanLine(y);
 
             for (int x = 0; x < noiseImage.width(); x++) {
-                // layer 1. intense (0-130, 10x banding)
-                int layer1 = (uint8_t)((static_cast<uint64_t>(std::rand()) * 10) % 131);
-
-                // layer 2. soft (0-40, 3x banding)
-                int layer2 = (uint8_t)((static_cast<uint64_t>(std::rand()) * 3) % 41);
-
-                // bend the lighting a bunch
-                int refraction = (layer1 * 1.96f) - (layer2 / 5.0f);
-                // blend them with subtle refraction
-                int blend = static_cast<int>(refraction * (m_noiseStrength / 10.0f));
-
-                // fixing noise strength at max setting by finally brining it back towards transparent (0)
-                int finalBlend = blend * 0.3f;
-                
-                // we cast it to uint8_t because that allows it to overflow
-                // nicely without clamping, so if it gets 299 it goes to 43
-                noiseImageLine[x] = static_cast<uint8_t>(blend);
+                uint8_t r = std::rand() % 256;
+                uint8_t g = std::rand() % 256;
+                uint8_t b = 128; // this is the height
+                uint8_t a = 255;
+                noiseImageLine[x] = (a << 24) | (b << 16) | (g << 8) | r;
             }
         }
 
@@ -1112,6 +1101,12 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         ShaderManager::instance()->pushShader(m_onscreenPass.shader.get());
         } // indent intentional for KWin diff
 
+        if (GLTexture *noiseTex = ensureNoiseTexture()) {
+            glActiveTexture(GL_TEXTURE1);
+            noiseTex->bind();
+            glActiveTexture(GL_TEXTURE0);
+        }
+        
         QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
         projectionMatrix.translate(scaledBackgroundRect.x(), scaledBackgroundRect.y());
 
