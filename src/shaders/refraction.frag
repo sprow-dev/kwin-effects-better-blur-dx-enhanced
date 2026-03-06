@@ -93,7 +93,7 @@ void main(void)
     // sample using reg uv
     vec4 noiseSample = texture2D(noiseTexture, uv);
     // normalize and scale to slider
-    vec2 noiseOffset = (noiseSample.rg - vec2(0.5)) * 0.02 * refractionStrength
+    vec2 noiseOffset = (noiseSample.rg - vec2(0.5)) * 0.1 * refractionStrength;
     
     // Different refraction behavior depending on mode
     if (refractionMode == 1) {
@@ -105,14 +105,14 @@ void main(void)
         float edgeProximity = clamp(1.0 + distConcave / refractionEdgeSizePixels, 0.0, 1.0);
         float shaped = sin(pow(edgeProximity, refractionNormalPow) * 1.57079632679);
 
-        vec2 fromCenter = (uv + noiseOffset) - vec2(0.5); // add our new uv offset
+        vec2 fromCenter = uv  - vec2(0.5); // add our new uv offset
         float scaleR = 1.0 - shaped * baseStrength * (1.0 + fringing);
         float scaleG = 1.0 - shaped * baseStrength;
         float scaleB = 1.0 - shaped * baseStrength * (1.0 - fringing);
 
-        vec2 coordR = applyTextureRepeatMode(vec2(0.5) + fromCenter * scaleR);
-        vec2 coordG = applyTextureRepeatMode(vec2(0.5) + fromCenter * scaleG);
-        vec2 coordB = applyTextureRepeatMode(vec2(0.5) + fromCenter * scaleB);
+        vec2 coordR = applyTextureRepeatMode(vec2(0.5) + fromCenter * scaleR + noiseOffset);
+        vec2 coordG = applyTextureRepeatMode(vec2(0.5) + fromCenter * scaleG + noiseOffset);
+        vec2 coordB = applyTextureRepeatMode(vec2(0.5) + fromCenter * scaleB + noiseOffset);
 
         for (int i = 0; i < 8; ++i) {
             vec2 off = offsets[i] * offset;
