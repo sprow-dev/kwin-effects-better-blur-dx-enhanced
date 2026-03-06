@@ -1104,7 +1104,7 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
         if (GLTexture *noiseTex = ensureNoiseTexture()) {
             glActiveTexture(GL_TEXTURE1);
             noiseTex->bind();
-            glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0); // reset so the other code works
         }
         
         QMatrix4x4 projectionMatrix = viewport.projectionMatrix();
@@ -1121,18 +1121,6 @@ void BlurEffect::blur(const RenderTarget &renderTarget, const RenderViewport &vi
                                                        halfpixel,
                                                        float(m_offset),
                                                        scaledBackgroundRect)) {
-
-        if (GLTexture *noiseTex = ensureNoiseTexture()) {
-            glActiveTexture(GL_TEXTURE1);
-            noiseTex->bind();
-            glActiveTexture(GL_TEXTURE0); 
-            
-            // Use .shader() to get the currently active shader from the manager
-            GLShader *currentShader = ShaderManager::instance()->shader();
-            if (currentShader) {
-                currentShader->setUniform("noiseTexture", 1);
-            }
-        }
         m_onscreenPass.shader->setUniform(m_onscreenPass.mvpMatrixLocation, projectionMatrix);
         m_onscreenPass.shader->setUniform(m_onscreenPass.colorMatrixLocation, colorMatrix);
         m_onscreenPass.shader->setUniform(m_onscreenPass.halfpixelLocation, halfpixel);
