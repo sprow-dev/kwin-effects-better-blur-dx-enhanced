@@ -731,14 +731,12 @@ GLTexture *BlurEffect::ensureNoiseTexture()
         QImage noiseImage(QSize(256, 256), QImage::Format_RGBA8888); 
 
         for (int y = 0; y < noiseImage.height(); y++) {
-            uint8_t *noiseImageLine = (uint8_t *)noiseImage.scanLine(y);
-
             for (int x = 0; x < noiseImage.width(); x++) {
                 uint8_t r = std::rand() % 256;
                 uint8_t g = std::rand() % 256;
-                uint8_t b = 128; // this is the height
+                uint8_t b = 128; // this is the depth map
                 uint8_t a = 255;
-                noiseImageLine[x] = (a << 24) | (b << 16) | (g << 8) | r;
+                noiseImage.setPixelColor(x, y, QColor(r, g, b, a));
             }
         }
 
