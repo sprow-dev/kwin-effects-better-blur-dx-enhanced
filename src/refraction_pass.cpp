@@ -41,6 +41,7 @@ BBDX::RefractionPass::RefractionPass() {
         m_rectangular.refractionRGBFringingLocation = m_rectangular.shader->uniformLocation("refractionRGBFringing");
         m_rectangular.refractionTextureRepeatModeLocation = m_rectangular.shader->uniformLocation("refractionTextureRepeatMode");
         m_rectangular.refractionModeLocation = m_rectangular.shader->uniformLocation("refractionMode");
+        m_rectangular.shader->setUniform("noiseTexture", 1);
     }
 
     m_rounded.shader = KWin::ShaderManager::instance()->generateShaderFromFile(
@@ -69,6 +70,8 @@ BBDX::RefractionPass::RefractionPass() {
         m_rounded.refractionRGBFringingLocation = m_rounded.shader->uniformLocation("refractionRGBFringing");
         m_rounded.refractionTextureRepeatModeLocation = m_rounded.shader->uniformLocation("refractionTextureRepeatMode");
         m_rounded.refractionModeLocation = m_rounded.shader->uniformLocation("refractionMode");
+        m_rounded.refractionModeLocation = m_rounded.shader->uniformLocation("refractionMode");
+        m_rounded.shader->setUniform("noiseTexture", 1);
     }
 }
 
